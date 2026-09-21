@@ -103,9 +103,11 @@
 	"common": {
 		"language": "Language",
 		"loading": "Loading…",
+		"reload": "Reload",
 		"success": "Success"
 	},
 	"errors": {
+		"activityChanged": "The activity was changed by someone else. Reload to see the current data.",
 		"activityNotFound": "Activity not found",
 		"captchaFailed": "Security check failed",
 		"customerNotFound": "Customer not found",

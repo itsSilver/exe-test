@@ -17,6 +17,8 @@ function row(overrides: Partial<ActivityRow> = {}): ActivityRow {
 		CPERRIFE: "",
 		MMEMO: null,
 		MMEMOPLAIN: "PER FAVORE RICHIAMATEMI",
+		DDATOPER: new Date(2026, 0, 16),
+		CORAOPER: "15:02",
 		...overrides,
 	};
 }
@@ -37,6 +39,7 @@ describe("toActivity", () => {
 			priority: "B",
 			referencePerson: "",
 			note: "PER FAVORE RICHIAMATEMI",
+			revision: "2026-01-16 15:02",
 		});
 	});
 
@@ -99,4 +102,21 @@ describe("toActivity", () => {
 			expect(toActivity(row({ CPRIORIT: stored })).priority).toBe(expected);
 		},
 	);
+});
+
+describe("revision", () => {
+	it("is built from the audit columns Edison PLUS maintains", () => {
+		expect(toActivity(row()).revision).toBe("2026-01-16 15:02");
+	});
+
+	it("changes when the row is saved again", () => {
+		const before = toActivity(row()).revision;
+		const after = toActivity(row({ CORAOPER: "16:40" })).revision;
+
+		expect(after).not.toBe(before);
+	});
+
+	it("is empty for a row that was never stamped", () => {
+		expect(toActivity(row({ DDATOPER: null, CORAOPER: null })).revision).toBe("");
+	});
 });

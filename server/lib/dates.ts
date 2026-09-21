@@ -25,3 +25,15 @@ export function fromIsoDate(value: string): Date {
 
 	return new Date(year, month - 1, day);
 }
+
+/**
+ * A token identifying the version of a row, built from the audit columns
+ * Edison PLUS maintains. It changes whenever anyone saves the record, from
+ * here or from the desktop application.
+ */
+export function buildRevision(date: Date | null | undefined, time: string | null | undefined): string {
+	const day = toIsoDate(date);
+	const clock = time?.trim() ?? "";
+
+	return day || clock ? `${day} ${clock}`.trim() : "";
+}

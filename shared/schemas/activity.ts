@@ -21,6 +21,8 @@ export const activitySchema = z.object({
 	priority: z.enum(PRIORITIES),
 	referencePerson: z.string().max(25),
 	note: z.string(),
+	// versione della riga, dalle colonne di audit di Edison PLUS
+	revision: z.string(),
 });
 
 /** What the insert and edit forms send, and what the API accepts. */
@@ -35,6 +37,8 @@ export const activityInputSchema = z.object({
 	priority: z.enum(PRIORITIES, "activity.validation.priorityRequired"),
 	referencePerson: z.string().trim().max(25),
 	note: z.string().trim().min(1, "activity.validation.noteRequired"),
+	// rimandata indietro in modifica, per accorgersi se qualcun altro ha salvato
+	revision: z.string().optional(),
 });
 
 export interface ActivityGroup {
