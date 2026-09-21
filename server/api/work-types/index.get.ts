@@ -1,10 +1,14 @@
-import { findAllWorkTypes } from "../../db/repositories/work-types";
-import { defineApiHandler } from "../../lib/handler";
-import { toJson } from "../../lib/response";
+import { lookupQuerySchema } from "#shared/schemas/lookup";
+import { countWorkTypes, findWorkTypes } from "../../db/repositories/work-types";
+import { defineApiHandler, readValidatedQuery } from "../../lib/handler";
+import { toJsonPaginated } from "../../lib/response";
 import { requireUser } from "../../lib/session";
 
 export default defineApiHandler(async (event) => {
 	await requireUser(event);
 
-	return toJson(event, await findAllWorkTypes());
+	const query = readValidatedQuery(event, lookupQuerySchema);
+	const [items, total] = await Promise.all([findWorkTypes(query), countWorkTypes(query)]);
+
+	return toJsonPaginated(event, items, { ...query, total });
 });

@@ -50,6 +50,36 @@
 			"statusRequired": "The status is required",
 			"priorityRequired": "The priority is required",
 			"noteRequired": "The note is required"
+		},
+		"form": {
+			"insertTitle": "New activity",
+			"editTitle": "Edit activity",
+			"viewTitle": "Activity detail",
+			"duration": "Duration",
+			"hours": "Hours",
+			"minutes": "Minutes",
+			"workType": "Work type",
+			"priority": "Priority",
+			"referencePerson": "Reference person",
+			"note": "Note",
+			"confirm": "Confirm",
+			"cancel": "Cancel",
+			"delete": "Delete",
+			"deleteTitle": "Delete this activity?",
+			"deleteConfirm": "The activity will be permanently deleted. Continue?",
+			"chooseCustomer": "Choose a customer",
+			"choosePerson": "Choose a person",
+			"chooseWorkType": "Choose a work type"
+		},
+		"picker": {
+			"customer": "Customer search",
+			"person": "People",
+			"workType": "Work types",
+			"filter": "Filter…",
+			"noResults": "No results",
+			"customerPlaceholder": "Name, address or town",
+			"customerHint": "Type at least {count} characters",
+			"more": "{shown} of {total}"
 		}
 	},
 	"auth": {

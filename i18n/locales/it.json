@@ -50,6 +50,36 @@
 			"statusRequired": "Lo stato è obbligatorio",
 			"priorityRequired": "La priorità è obbligatoria",
 			"noteRequired": "La nota è obbligatoria"
+		},
+		"form": {
+			"insertTitle": "Nuova attività",
+			"editTitle": "Modifica attività",
+			"viewTitle": "Dettaglio attività",
+			"duration": "Durata",
+			"hours": "Ore",
+			"minutes": "Minuti",
+			"workType": "Tipo lavorazione",
+			"priority": "Priorità",
+			"referencePerson": "Persona di riferimento",
+			"note": "Nota",
+			"confirm": "Conferma",
+			"cancel": "Annulla",
+			"delete": "Cancella",
+			"deleteTitle": "Cancellare l'attività?",
+			"deleteConfirm": "L'attività verrà cancellata definitivamente. Vuoi procedere?",
+			"chooseCustomer": "Scegli un cliente",
+			"choosePerson": "Scegli una persona",
+			"chooseWorkType": "Scegli una lavorazione"
+		},
+		"picker": {
+			"customer": "Ricerca cliente",
+			"person": "Persone",
+			"workType": "Tipi di lavorazione",
+			"filter": "Filtra…",
+			"noResults": "Nessun risultato",
+			"customerPlaceholder": "Ragione sociale, indirizzo o città",
+			"customerHint": "Scrivi almeno {count} caratteri",
+			"more": "{shown} di {total}"
 		}
 	},
 	"auth": {
