@@ -58,6 +58,7 @@ async function onLogout() {
 			<span class="font-semibold">{{ t("app.name") }}</span>
 
 			<div class="ms-auto flex items-center gap-1">
+				<PendingBadge />
 				<UColorModeButton />
 				<LanguageSwitcher />
 			</div>

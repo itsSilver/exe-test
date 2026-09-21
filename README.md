@@ -116,11 +116,21 @@ limits of the data source:
   no connection. A banner says so.
 - **Automatic updates** — a new service worker takes over on the next visit.
 
+- **Offline inserts** — an activity created without a connection is stored in IndexedDB and
+  sent as soon as one returns. The header shows how many are waiting and sends them on demand.
+
 Firebird is a server database reached over TCP, so there is no offline mode to inherit from it:
-everything offline here comes from what the browser has already cached. Writing offline is
-deliberately not supported — `TBATCL.IDREC` is assigned by a trigger on insert, so a queued
-change could not know its own identity, and Edison PLUS users are editing the same rows in the
-meantime. Insert, edit and delete therefore require a connection.
+everything offline here comes from what the browser has already cached or queued.
+
+Only inserts are queued, and that is a deliberate limit. `TBATCL.IDREC` is assigned by a trigger,
+so a queued insert simply receives its identity when it reaches the server. An edit is different:
+Edison PLUS users are changing the same rows from the desktop, and replaying an edit made twenty
+minutes earlier would overwrite their work — which is exactly what the conflict detection above
+exists to prevent. Edit and delete therefore require a connection.
+
+Replay happens two ways. On Chromium the service worker replays the queue through Background
+Sync. Safari does not implement it, and the specification targets iOS, so the app also flushes
+the queue whenever it regains a connection or is simply reopened.
 
 ## Testing
 
