@@ -1,4 +1,4 @@
-import { ACTIVITIES_CACHE } from "./shared/utils/cache";
+import { ACTIVITIES_CACHE, ACTIVITIES_QUEUE } from "./shared/utils/cache";
 
 export default defineNuxtConfig({
 	modules: [
@@ -80,6 +80,18 @@ export default defineNuxtConfig({
 			navigateFallback: "/",
 			globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2}"],
 			runtimeCaching: [
+				{
+					// gli inserimenti falliti vengono rigiocati alla riconnessione
+					urlPattern: /\/api\/activities$/,
+					method: "POST",
+					handler: "NetworkOnly",
+					options: {
+						backgroundSync: {
+							name: ACTIVITIES_QUEUE,
+							options: { maxRetentionTime: 60 * 24 },
+						},
+					},
+				},
 				{
 					// l'ultima lista resta leggibile anche senza rete
 					urlPattern: /\/api\/activities$/,

@@ -131,6 +131,11 @@
 	},
 	"offline": {
 		"title": "Sei offline",
-		"description": "Vengono mostrati gli ultimi dati scaricati. Le modifiche non sono disponibili."
+		"description": "Vengono mostrati gli ultimi dati scaricati. Le modifiche non sono disponibili.",
+		"pending": "{count} attività in attesa di invio",
+		"queued": "Attività salvata: verrà inviata appena torna la connessione",
+		"sent": "{count} attività inviate",
+		"insertTitle": "Sei offline",
+		"insertDescription": "Puoi comunque inserire l'attività: verrà inviata appena torna la connessione."
 	}
 }

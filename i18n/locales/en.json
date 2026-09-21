@@ -131,6 +131,11 @@
 	},
 	"offline": {
 		"title": "You are offline",
-		"description": "Showing the data last downloaded. Changes are not available."
+		"description": "Showing the data last downloaded. Changes are not available.",
+		"pending": "{count} activities waiting to be sent",
+		"queued": "Activity saved: it will be sent as soon as the connection is back",
+		"sent": "{count} activities sent",
+		"insertTitle": "You are offline",
+		"insertDescription": "You can still create the activity: it will be sent as soon as the connection is back."
 	}
 }
