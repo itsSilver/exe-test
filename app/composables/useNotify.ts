@@ -16,12 +16,16 @@ export function useNotify() {
 	}
 
 	function error(cause: unknown, fallbackKey = "errors.generic") {
-		const data = (cause as { data?: { statusMessage?: string; message?: string } })?.data;
+		const data = (cause as { data?: { statusMessage?: string; message?: string; code?: string } })?.data;
 
 		toast.add({
 			title: data?.statusMessage || data?.message || t(fallbackKey),
 			color: "error",
 			icon: "i-lucide-circle-alert",
+			// un conflitto si risolve solo ricaricando i dati aggiornati
+			actions: data?.code === "CONFLICT"
+				? [{ label: t("common.reload"), onClick: () => reloadNuxtApp() }]
+				: undefined,
 		});
 	}
 

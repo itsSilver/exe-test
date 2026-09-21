@@ -8,7 +8,7 @@ import {
 	updateActivity,
 } from "../db/repositories/activities";
 import { findCustomerByCode } from "../db/repositories/customers";
-import { badRequest, notFound } from "../lib/errors";
+import { badRequest, conflict, notFound } from "../lib/errors";
 
 export async function listActivities(query: ActivityQuery) {
 	// due query servono davvero: le righe della pagina e il totale filtrato
@@ -44,7 +44,17 @@ export async function create(input: ActivityInput, userCode: string): Promise<Ac
 
 export async function update(id: number, input: ActivityInput, userCode: string): Promise<Activity> {
 	// la riga deve esistere, altrimenti l'UPDATE non tocca nulla in silenzio
-	await getById(id);
+	const current = await getById(id);
+
+	/*
+	 * Edison PLUS users are editing the same rows on the desktop. If the audit
+	 * columns moved since this form was opened, someone else saved in the
+	 * meantime and overwriting would lose their work.
+	 */
+	if (input.revision && current.revision && input.revision !== current.revision) {
+		throw conflict("errors.activityChanged");
+	}
+
 	await assertCustomerExists(input.customerCode);
 
 	const updated = await updateActivity(id, input, userCode);

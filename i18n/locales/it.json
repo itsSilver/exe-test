@@ -103,9 +103,11 @@
 	"common": {
 		"language": "Lingua",
 		"loading": "Caricamento…",
+		"reload": "Ricarica",
 		"success": "Operazione completata"
 	},
 	"errors": {
+		"activityChanged": "L'attività è stata modificata da un altro utente. Ricarica per vedere i dati aggiornati.",
 		"activityNotFound": "Attività non trovata",
 		"captchaFailed": "Verifica di sicurezza non superata",
 		"customerNotFound": "Cliente non trovato",

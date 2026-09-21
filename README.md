@@ -232,6 +232,16 @@ export default defineApiHandler(async (event) => {
 The same Zod schema validates both ends: the form calls `useZodValidator(activityInputSchema)`
 and the handler calls `readValidatedBody(event, activityInputSchema)`, so the two cannot drift.
 
+## Concurrent edits
+
+Edison PLUS users are working on the same rows from the desktop, so an activity carries a
+`revision` built from its audit columns, `DDATOPER` and `CORAOPER`. The edit form sends the
+revision it was opened with, and `PUT` refuses with `409 CONFLICT` when it no longer matches —
+the interface then offers to reload rather than overwrite work someone else has just saved.
+
+Insert and delete are unaffected: an insert has no previous version, and a delete of a row that
+is already gone answers `404`.
+
 ## Authentication
 
 `POST /api/auth/login` checks the code and password against `TBUTEN`, verifies the Turnstile
@@ -268,7 +278,7 @@ and `hasNextPage`.
 | `GET` | `/api/activities` | Paginated list; `search`, `status`, `priority`, `personCode`, `sort`, `order` |
 | `POST` | `/api/activities` | Creates an activity |
 | `GET` | `/api/activities/:id` | A single activity |
-| `PUT` | `/api/activities/:id` | Updates an activity |
+| `PUT` | `/api/activities/:id` | Updates an activity; `409` if it changed meanwhile |
 | `DELETE` | `/api/activities/:id` | Deletes an activity |
 | `GET` | `/api/customers` | Customer search, four characters minimum |
 | `GET` | `/api/people` | `TBPERS`, paginated and searchable |

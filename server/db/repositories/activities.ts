@@ -1,7 +1,7 @@
 import type { Database } from "node-firebird";
 import { type Activity, type ActivityInput, type ActivityQuery, UNASSIGNED } from "#shared/schemas/activity";
 import { isSearchable, toLikePattern } from "#shared/utils/search";
-import { fromIsoDate, toIsoDate } from "../../lib/dates";
+import { buildRevision, fromIsoDate, toIsoDate } from "../../lib/dates";
 import { fromRtf, toPlain, toRtf } from "../../lib/rtf";
 import { withDb } from "../client";
 
@@ -31,6 +31,8 @@ export interface ActivityRow {
 	CPERRIFE: string | null;
 	MMEMO: string | null;
 	MMEMOPLAIN: string | null;
+	DDATOPER: Date | null;
+	CORAOPER: string | null;
 }
 
 /**
@@ -45,6 +47,7 @@ function selectActivities(db: Database) {
 		SELECT
 			a.IDREC, a.CCODCLIE, a.DDATATTI, a.CCODPERS, a.NORE, a.CCODCAUS,
 			a.CSTATO, a.CPRIORIT, a.CPERRIFE, a.MMEMO, a.MMEMOPLAIN,
+			a.DDATOPER, a.CORAOPER,
 			c.CDESCLIE, p.CDESPERS, g.CDESGENE
 		FROM TBATCL a
 		LEFT JOIN TBCLIE c ON TRIM(c.CCODCLIE) = TRIM(a.CCODCLIE)
@@ -69,6 +72,7 @@ export function toActivity(row: ActivityRow): Activity {
 		referencePerson: row.CPERRIFE?.trim() ?? "",
 		// MMEMOPLAIN è lo specchio in chiaro di MMEMO, che invece è RTF
 		note: row.MMEMOPLAIN?.trim() || fromRtf(row.MMEMO),
+		revision: buildRevision(row.DDATOPER, row.CORAOPER),
 	};
 }
 

@@ -30,6 +30,7 @@ const state = reactive<ActivityInput>({
 	priority: props.activity?.priority ?? "B",
 	referencePerson: props.activity?.referencePerson ?? "",
 	note: props.activity?.note ?? "",
+	revision: props.activity?.revision,
 });
 
 // le etichette mostrano "descrizione (codice)" anche prima di ricaricare la riga
