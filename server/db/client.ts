@@ -40,3 +40,5 @@ export async function closePool() {
 	await pool?.destroyAsync();
 	pool = undefined;
 }
+
+export type { Database };

@@ -1,13 +1,10 @@
-import type { ApiResponse } from "#shared/types/api";
+import type { LookupItem } from "#shared/schemas/lookup";
+import type { ApiPaginatedResponse } from "#shared/types/api";
 
-interface Person {
-	code: string;
-	name: string;
-}
-
-/** TBPERS, alphabetical, for the assignee filter and the detail form picker. */
+/** The whole of TBPERS, for the filter dropdown on the list screen. */
 export function usePeople() {
-	const { data } = useFetch<ApiResponse<Person[]>>("/api/people", {
+	const { data } = useFetch<ApiPaginatedResponse<LookupItem>>("/api/people", {
+		query: { limit: 200 },
 		headers: useRequestHeaders(["cookie"]),
 		lazy: true,
 	});

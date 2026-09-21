@@ -22,3 +22,11 @@ export function formatCodeLabel(description: string, code: string): string {
 export function formatHours(hours: number): string {
 	return `${hours.toFixed(2).replace(".", ",")} h`;
 }
+
+/** Today, or any Date, as the ISO string the form fields use. */
+export function toIsoDate(value: Date): string {
+	const month = `${value.getMonth() + 1}`.padStart(2, "0");
+	const day = `${value.getDate()}`.padStart(2, "0");
+
+	return `${value.getFullYear()}-${month}-${day}`;
+}
