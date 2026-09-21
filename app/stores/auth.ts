@@ -40,6 +40,7 @@ export const useAuthStore = defineStore("auth", () => {
 		});
 
 		user.value = null;
+		await useOfflineCache().clear();
 		await navigateTo("/login");
 
 		return response;

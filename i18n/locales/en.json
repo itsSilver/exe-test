@@ -2,6 +2,44 @@
 	"app": {
 		"name": "Edison Cloud"
 	},
+	"activity": {
+		"title": "Activities / Tickets",
+		"empty": "No activities to show",
+		"noNote": "No description",
+		"unassigned": "Unassigned",
+		"status": {
+			"A": "Open",
+			"S": "On hold",
+			"C": "Closed"
+		},
+		"priority": {
+			"A": "High",
+			"M": "Medium",
+			"B": "Low"
+		},
+		"actions": {
+			"insert": "Insert",
+			"edit": "Edit",
+			"view": "View"
+		},
+		"count": "{count} activities",
+		"emptyFiltered": "No activities match these filters",
+		"columns": {
+			"person": "Person",
+			"date": "Date",
+			"customer": "Customer",
+			"status": "Status",
+			"note": "Description",
+			"actions": "Actions"
+		},
+		"filters": {
+			"allStatuses": "All statuses",
+			"allPeople": "All people",
+			"reset": "Clear",
+			"allPriorities": "All priorities",
+			"search": "Search person, customer or description"
+		}
+	},
 	"auth": {
 		"title": "Sign in",
 		"subtitle": "Enter your credentials to continue",
@@ -22,18 +60,30 @@
 	},
 	"common": {
 		"language": "Language",
+		"loading": "Loading…",
 		"success": "Success"
 	},
 	"errors": {
-		"databaseUnavailable": "Database unavailable",
-		"invalidCredentials": "Invalid user code or password",
+		"activityNotFound": "Activity not found",
 		"captchaFailed": "Security check failed",
+		"databaseUnavailable": "Database unavailable",
+		"forbidden": "Not allowed",
+		"generic": "Something went wrong, please try again",
+		"invalidCredentials": "Invalid user code or password",
 		"notFound": "Activity not found",
-		"unauthorized": "Session expired, please sign in again",
-		"generic": "Something went wrong, please try again"
+		"unauthorized": "Session expired, please sign in again"
 	},
 	"health": {
 		"connected": "Database connected",
 		"summary": "{tickets} activities, {clienti} customers, {persone} people"
+	},
+	"menu": {
+		"title": "Menu",
+		"open": "Open the menu",
+		"activities": "Customer activities / tickets"
+	},
+	"offline": {
+		"title": "You are offline",
+		"description": "Showing the data last downloaded. Changes are not available."
 	}
 }

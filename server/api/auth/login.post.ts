@@ -1,46 +1,16 @@
 import { loginSchema } from "#shared/schemas/auth";
-import {
-	findUserByCode,
-	recordAccess,
-	toUser,
-	verifyPassword,
-} from "../../db/repositories/users";
-import { t, throwLocalizedError } from "../../lib/i18n";
+import { defineApiHandler, readValidatedBody } from "../../lib/handler";
 import { toJson } from "../../lib/response";
 import { setUserSession } from "../../lib/session";
+import { assertCaptcha, authenticate } from "../../services/auth.service";
 
-export default defineEventHandler(async (event) => {
-	const body = await readValidatedBody(event, loginSchema.safeParse);
+export default defineApiHandler(async (event) => {
+	const { userCode, password, turnstileToken } = await readValidatedBody(event, loginSchema);
 
-	if (!body.success) {
-		const issue = body.error.issues[0];
+	await assertCaptcha(turnstileToken, token => verifyTurnstileToken(token, event));
 
-		throw createError({
-			statusCode: 400,
-			statusMessage: t(event, issue?.message ?? "errors.invalidCredentials"),
-		});
-	}
-
-	const { userCode, password, turnstileToken } = body.data;
-
-	const captcha = await verifyTurnstileToken(turnstileToken, event);
-
-	if (!captcha.success) {
-		throwLocalizedError(event, 400, "errors.captchaFailed");
-	}
-
-	const row = await findUserByCode(userCode);
-
-	// stesso messaggio per codice inesistente e password errata, così non si
-	// può usare il form per scoprire quali utenti esistono
-	if (!row || !verifyPassword(row, password)) {
-		throwLocalizedError(event, 401, "errors.invalidCredentials");
-	}
-
-	const user = toUser(row);
-
+	const user = await authenticate(userCode, password);
 	await setUserSession(event, user);
-	await recordAccess(user.code);
 
 	return toJson(event, user, "auth.loginSuccess");
 });

@@ -11,6 +11,7 @@ database.
 - [Requirements](#requirements)
 - [Setup](#setup)
 - [Development](#development)
+- [Progressive web app](#progressive-web-app)
 - [Testing](#testing)
 - [Database](#database)
 - [Project Structure](#project-structure)
@@ -29,6 +30,8 @@ database.
   driver, no native `fbclient` required
 - [ESLint](https://eslint.org/) via [@nuxt/eslint](https://eslint.nuxt.com/) for linting and formatting
 - [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) for the login challenge
+- [@vite-pwa/nuxt](https://vite-pwa-org.netlify.app/frameworks/nuxt) for installability and
+  offline reads
 - Firebird 2.5 in Docker for local development
 
 ## Requirements
@@ -74,6 +77,25 @@ Test users live in `TBUTEN`. Any of the following work, all with password `123`:
 | `01`   | UTENTE 01   |
 | `02`   | UTENTE 02   |
 | `W1`   | WEB DEMO 1  |
+
+## Progressive web app
+
+The application installs to the home screen and keeps working without a connection, within the
+limits of the data source:
+
+- **Installable** — web manifest, maskable icons, standalone display, portrait orientation.
+- **Instant loads** — the app shell is precached, so a repeat visit renders before the network
+  answers.
+- **Offline reads** — the ticket list is served `NetworkFirst` with a three second timeout and
+  falls back to the copy in the `edison-activities` cache, so the last list stays readable with
+  no connection. A banner says so.
+- **Automatic updates** — a new service worker takes over on the next visit.
+
+Firebird is a server database reached over TCP, so there is no offline mode to inherit from it:
+everything offline here comes from what the browser has already cached. Writing offline is
+deliberately not supported — `TBATCL.IDREC` is assigned by a trigger on insert, so a queued
+change could not know its own identity, and Edison PLUS users are editing the same rows in the
+meantime. Insert, edit and delete therefore require a connection.
 
 ## Testing
 
@@ -148,13 +170,18 @@ app/
   stores/
     auth.ts             # Pinia session store
 server/
-  api/                  # Nitro route handlers
+  api/                  # Route handlers: read input, call a service, return an envelope
+  services/             # Business rules; the only thing handlers talk to
   db/
     client.ts           # node-firebird connection pool
-    repositories/       # One module per table; legacy columns stop here
+    repositories/       # SQL and row mapping; legacy columns stop here
   lib/
+    dates.ts            # Local-time formatting for DDATATTI
+    errors.ts           # ApiError and its factories
+    handler.ts          # defineApiHandler and schema-validated input
+    hours.ts            # Minutes to decimal hours
     i18n.ts             # Locale resolution and translation for API responses
-    response.ts         # toJson / toJsonPaginated envelope helpers
+    response.ts         # toJson / toJsonPaginated / toErrorJson
     rtf.ts              # MMEMO encode/decode
     session.ts          # Sealed cookie session helpers
   plugins/
@@ -163,9 +190,20 @@ docker/
   firebird/data/        # The .FDB file (git-ignored)
 ```
 
-Legacy column names (`CCODCLIE`, `DDATATTI`, `MMEMO`, ...) never leave `server/db/repositories`.
-Every module above that layer works with plain, typed objects, which keeps the Firebird schema
-out of the application and the UI.
+Three layers, each with one job. **Repositories** hold the SQL and turn rows into domain
+objects; legacy column names (`CCODCLIE`, `DDATATTI`, `MMEMO`, ...) never leave them.
+**Services** hold the rules and throw `ApiError` when something is wrong. **Handlers** only read
+the input, call a service and return an envelope — no SQL, no try/catch:
+
+```ts
+export default defineApiHandler(async (event) => {
+	await requireUser(event);
+
+	const { groups } = await listRecent();
+
+	return toJson(event, groups);
+});
+```
 
 ## Authentication
 
@@ -194,6 +232,20 @@ Every endpoint returns the same envelope, built by `toJson` or `toJsonPaginated`
 
 List endpoints add a `meta` block with `page`, `limit`, `total`, `totalPages`, `hasPreviousPage`
 and `hasNextPage`.
+
+Failures answer in the same shape, so a client never has to branch on the response:
+
+```json
+{
+	"success": false,
+	"message": "Attività non trovata",
+	"code": "NOT_FOUND"
+}
+```
+
+`defineApiHandler` catches whatever a service throws: an `ApiError` keeps its status and code,
+and anything unexpected becomes a 500 `INTERNAL_ERROR` with a generic message, so an internal
+failure never reaches the client as text.
 
 `message`, and the `statusMessage` of any error, are translated per request. The interface
 starts in Italian and stays there until the user picks another language from the switcher; the

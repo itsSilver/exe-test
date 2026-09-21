@@ -1,6 +1,6 @@
 import type { H3Event } from "h3";
 import type { User } from "#shared/schemas/auth";
-import { throwLocalizedError } from "./i18n";
+import { unauthorized } from "./errors";
 
 interface SessionData {
 	user: User;
@@ -48,7 +48,7 @@ export async function requireUser(event: H3Event): Promise<User> {
 	const user = await getUser(event);
 
 	if (!user) {
-		throwLocalizedError(event, 401, "errors.unauthorized");
+		throw unauthorized();
 	}
 
 	return user;
