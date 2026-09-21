@@ -1,4 +1,4 @@
-import type { H3Event } from "h3";
+import { createError, getCookie, getRequestHeader, type H3Event } from "h3";
 import en from "../../i18n/locales/en.json";
 import it from "../../i18n/locales/it.json";
 

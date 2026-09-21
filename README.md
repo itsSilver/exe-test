@@ -11,6 +11,7 @@ database.
 - [Requirements](#requirements)
 - [Setup](#setup)
 - [Development](#development)
+- [Testing](#testing)
 - [Database](#database)
 - [Project Structure](#project-structure)
 - [Scripts](#scripts)
@@ -73,6 +74,20 @@ Test users live in `TBUTEN`. Any of the following work, all with password `123`:
 | `01`   | UTENTE 01   |
 | `02`   | UTENTE 02   |
 | `W1`   | WEB DEMO 1  |
+
+## Testing
+
+[Vitest](https://vitest.dev/) covers the pure parts of the server: locale resolution and
+translation, the response envelopes, the mapping out of the legacy columns, and the login
+schema. Tests sit next to the code they cover as `*.test.ts`.
+
+```bash
+pnpm test         # single run
+pnpm test:watch   # watch mode
+```
+
+They need neither the database nor a running server, so the suite finishes in well under a
+second.
 
 ## Database
 
@@ -201,6 +216,8 @@ them with `t()`, and the forms resolve them through `useZodValidator`.
 | `pnpm build`              | Production build                     |
 | `pnpm preview`            | Preview the production build         |
 | `pnpm typecheck`          | Type-check the project               |
+| `pnpm test`               | Run the test suite                   |
+| `pnpm test:watch`         | Run the test suite in watch mode     |
 | `pnpm lint`               | Run ESLint                           |
 | `pnpm lint:fix`           | Run ESLint with `--fix`              |
 | `pnpm db:up`              | Start the Firebird container         |

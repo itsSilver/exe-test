@@ -9,6 +9,8 @@
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"typecheck": "nuxt typecheck",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
 		"db:up": "docker compose up -d",
@@ -22,6 +24,7 @@
 		"@pinia/nuxt": "^0.11.2",
 		"@vueuse/nuxt": "^13.6.0",
 		"gsap": "^3.15.0",
+		"h3": "1.15.11",
 		"node-firebird": "^2.16.2",
 		"nuxt": "^4.5.2",
 		"pinia": "^3.0.4",
@@ -34,6 +37,7 @@
 		"@nuxt/eslint": "^1.9.0",
 		"eslint": "^9.39.0",
 		"typescript": "^5.9.3",
+		"vitest": "^5.0.1",
 		"vue-tsc": "^3.2.0"
 	},
 	"pnpm": {
