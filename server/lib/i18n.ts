@@ -8,14 +8,17 @@ export type Locale = keyof typeof messages;
 
 const DEFAULT_LOCALE: Locale = "it";
 const COOKIE_KEY = "edison_locale";
+const HEADER_KEY = "x-locale";
 
 function isSupported(value: string): value is Locale {
 	return value in messages;
 }
 
 /**
- * Picks the locale for a request: the cookie set by the language switcher wins,
- * otherwise the best match from Accept-Language, otherwise Italian.
+ * Picks the locale for a request: the cookie written by the language switcher
+ * first, then an explicit X-Locale header for clients that call the API
+ * directly, and Italian otherwise. The browser's Accept-Language is ignored on
+ * purpose, so the interface and the responses never disagree.
  */
 export function resolveLocale(event: H3Event): Locale {
 	const cookie = getCookie(event, COOKIE_KEY);
@@ -24,18 +27,13 @@ export function resolveLocale(event: H3Event): Locale {
 		return cookie;
 	}
 
-	const header = getRequestHeader(event, "accept-language") ?? "";
+	const header = getRequestHeader(event, HEADER_KEY)?.trim().toLowerCase();
 
-	const preferred = header
-		.split(",")
-		.map((part) => {
-			const [tag = "", q = "q=1"] = part.trim().split(";");
-			return { tag: tag.split("-")[0]?.toLowerCase() ?? "", quality: Number(q.replace("q=", "")) || 0 };
-		})
-		.sort((a, b) => b.quality - a.quality)
-		.find(entry => isSupported(entry.tag));
+	if (header && isSupported(header)) {
+		return header;
+	}
 
-	return preferred ? (preferred.tag as Locale) : DEFAULT_LOCALE;
+	return DEFAULT_LOCALE;
 }
 
 function lookup(locale: Locale, key: string): string | undefined {

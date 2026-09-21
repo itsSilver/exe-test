@@ -1,36 +1,56 @@
 <script setup lang="ts">
 const { t } = useI18n();
-const { data, error } = await useFetch("/api/health");
+const auth = useAuthStore();
+const notify = useNotify();
+
+const isLoggingOut = ref(false);
+
+async function onLogout() {
+	isLoggingOut.value = true;
+
+	try {
+		const response = await auth.logout();
+		notify.success(response.message);
+	}
+	catch (error) {
+		notify.error(error);
+	}
+	finally {
+		isLoggingOut.value = false;
+	}
+}
 </script>
 
 <template>
 	<UContainer class="py-12">
-		<h1 class="text-2xl font-semibold">
-			{{ t("app.name") }}
-		</h1>
+		<div class="flex items-center justify-between gap-4">
+			<div>
+				<h1 class="text-2xl font-semibold">
+					{{ t("app.name") }}
+				</h1>
+				<p
+					v-if="auth.user"
+					class="mt-1 text-sm text-muted"
+				>
+					{{ t("auth.loggedInAs", {
+						name: auth.user.name,
+						code: auth.user.code,
+					}) }}
+				</p>
+			</div>
 
-		<UAlert
-			v-if="error"
-			class="mt-6"
-			color="error"
-			variant="subtle"
-			icon="i-lucide-circle-alert"
-			:title="t('errors.databaseUnavailable')"
-			:description="error.statusMessage"
-		/>
+			<div class="flex items-center gap-2">
+				<LanguageSwitcher />
 
-		<UAlert
-			v-else
-			class="mt-6"
-			color="success"
-			variant="subtle"
-			icon="i-lucide-database"
-			:title="data?.message"
-			:description="t('health.summary', {
-				tickets: data?.data.tickets ?? 0,
-				clienti: data?.data.clienti ?? 0,
-				persone: data?.data.persone ?? 0,
-			})"
-		/>
+				<UButton
+					color="neutral"
+					variant="subtle"
+					icon="i-lucide-log-out"
+					:loading="isLoggingOut"
+					:label="t('auth.logout')"
+					@click="onLogout"
+				/>
+			</div>
+		</div>
 	</UContainer>
 </template>

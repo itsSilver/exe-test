@@ -2,7 +2,26 @@
 	"app": {
 		"name": "Edison Cloud"
 	},
+	"auth": {
+		"title": "Sign in",
+		"subtitle": "Enter your credentials to continue",
+		"userCode": "User code",
+		"password": "Password",
+		"submit": "Confirm",
+		"logout": "Log out",
+		"loginSuccess": "Signed in",
+		"logoutSuccess": "Signed out",
+		"loggedInAs": "Signed in as {name} ({code})",
+		"validation": {
+			"userCodeRequired": "The user code is required",
+			"userCodeLength": "The user code is at most 2 characters",
+			"passwordRequired": "The password is required",
+			"passwordLength": "The password is at most 10 characters",
+			"captchaRequired": "Complete the security check"
+		}
+	},
 	"common": {
+		"language": "Language",
 		"success": "Success"
 	},
 	"errors": {
@@ -10,7 +29,8 @@
 		"invalidCredentials": "Invalid user code or password",
 		"captchaFailed": "Security check failed",
 		"notFound": "Activity not found",
-		"unauthorized": "Session expired, please sign in again"
+		"unauthorized": "Session expired, please sign in again",
+		"generic": "Something went wrong, please try again"
 	},
 	"health": {
 		"connected": "Database connected",

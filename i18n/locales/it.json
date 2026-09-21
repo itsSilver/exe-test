@@ -2,7 +2,26 @@
 	"app": {
 		"name": "Edison Cloud"
 	},
+	"auth": {
+		"title": "Accesso",
+		"subtitle": "Inserisci le tue credenziali per continuare",
+		"userCode": "Codice utente",
+		"password": "Password",
+		"submit": "Conferma",
+		"logout": "Logout",
+		"loginSuccess": "Accesso effettuato",
+		"logoutSuccess": "Logout effettuato",
+		"loggedInAs": "Collegato come {name} ({code})",
+		"validation": {
+			"userCodeRequired": "Il codice utente è obbligatorio",
+			"userCodeLength": "Il codice utente ha al massimo 2 caratteri",
+			"passwordRequired": "La password è obbligatoria",
+			"passwordLength": "La password ha al massimo 10 caratteri",
+			"captchaRequired": "Completa la verifica di sicurezza"
+		}
+	},
 	"common": {
+		"language": "Lingua",
 		"success": "Operazione completata"
 	},
 	"errors": {
@@ -10,7 +29,8 @@
 		"invalidCredentials": "Codice utente o password non validi",
 		"captchaFailed": "Verifica di sicurezza non superata",
 		"notFound": "Attività non trovata",
-		"unauthorized": "Sessione scaduta, effettua di nuovo l'accesso"
+		"unauthorized": "Sessione scaduta, effettua di nuovo l'accesso",
+		"generic": "Si è verificato un errore, riprova"
 	},
 	"health": {
 		"connected": "Database connesso",

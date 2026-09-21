@@ -115,10 +115,15 @@ i18n/
 app/
   components/           # Nuxt UI based components
     Attivita/           # Ticket list, detail form, pickers
-  composables/          # useApi and friends
+  composables/
+    useLocaleSwitcher.ts  # Language selection, persisted in a cookie
+    useNotify.ts          # Success and error toasts for API calls
+    useZodValidator.ts    # Translates schema messages for UForm
   layouts/
   middleware/
-    auth.ts             # Redirects to /login when there is no session
+    auth.global.ts      # Redirects to /login when there is no session
+  plugins/
+    locale.ts           # Restores the saved language on startup
   pages/
     login.vue
     attivita/           # List, insert, edit, view
@@ -133,6 +138,7 @@ server/
     i18n.ts             # Locale resolution and translation for API responses
     response.ts         # toJson / toJsonPaginated envelope helpers
     rtf.ts              # MMEMO encode/decode
+    session.ts          # Sealed cookie session helpers
   plugins/
     firebird.ts         # Closes the connection pool on shutdown
 docker/
@@ -142,6 +148,19 @@ docker/
 Legacy column names (`CCODCLIE`, `DDATATTI`, `MMEMO`, ...) never leave `server/db/repositories`.
 Every module above that layer works with plain, typed objects, which keeps the Firebird schema
 out of the application and the UI.
+
+## Authentication
+
+`POST /api/auth/login` checks the code and password against `TBUTEN`, verifies the Turnstile
+token server-side, and opens a sealed `edison_session` cookie (httpOnly, sameSite lax, signed
+with `SESSION_SECRET`). `GET /api/auth/me` restores the session on a page refresh and
+`POST /api/auth/logout` clears it. A global route middleware sends anonymous visitors to
+`/login` and keeps logged-in users away from it.
+
+Passwords in `TBUTEN` are stored in clear text and compared as such, as the specification
+requires. An unknown user code and a wrong password return the same message, so the form
+cannot be used to enumerate valid codes. Every successful login stamps `TBUTEN.DDATACC`, the
+same column Edison PLUS updates.
 
 ## API conventions
 
@@ -158,15 +177,21 @@ Every endpoint returns the same envelope, built by `toJson` or `toJsonPaginated`
 List endpoints add a `meta` block with `page`, `limit`, `total`, `totalPages`, `hasPreviousPage`
 and `hasNextPage`.
 
-`message`, and the `statusMessage` of any error, are translated per request. The locale comes
-from the `edison_locale` cookie when the language switcher has set one, otherwise from the
-`Accept-Language` header, otherwise Italian:
+`message`, and the `statusMessage` of any error, are translated per request. The interface
+starts in Italian and stays there until the user picks another language from the switcher; the
+choice is kept in the `edison_locale` cookie, which the API reads as well so the two never
+disagree. Clients calling the API directly can send an `X-Locale` header instead:
 
 ```bash
-curl -H "Accept-Language: en" http://localhost:3000/api/health
+curl -H "X-Locale: en" http://localhost:3000/api/health
 ```
 
+The browser's `Accept-Language` is deliberately ignored, otherwise an English browser would get
+an Italian screen with English messages on it.
+
 Server and client read the same files in `i18n/locales`, so a message only ever exists once.
+The Zod schemas in `shared/` store translation keys rather than sentences: the API resolves
+them with `t()`, and the forms resolve them through `useZodValidator`.
 
 ## Scripts
 

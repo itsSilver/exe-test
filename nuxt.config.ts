@@ -43,11 +43,9 @@ export default defineNuxtConfig({
 			{ code: "it", language: "it-IT", name: "Italiano", file: "it.json" },
 			{ code: "en", language: "en-US", name: "English", file: "en.json" },
 		],
-		detectBrowserLanguage: {
-			useCookie: true,
-			cookieKey: "edison_locale",
-			redirectOn: "root",
-		},
+		// la lingua di default è sempre l'italiano: il browser non decide,
+		// decide l'utente con il selettore
+		detectBrowserLanguage: false,
 	},
 
 	turnstile: {
