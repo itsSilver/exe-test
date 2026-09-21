@@ -1,4 +1,4 @@
-import { createError, getCookie, getRequestHeader, type H3Event } from "h3";
+import { getCookie, getRequestHeader, type H3Event } from "h3";
 import en from "../../i18n/locales/en.json";
 import it from "../../i18n/locales/it.json";
 
@@ -52,9 +52,4 @@ export function t(event: H3Event, key: string, params: Record<string, string | n
 	return message.replace(/\{(\w+)\}/g, (match, name: string) =>
 		name in params ? String(params[name]) : match,
 	);
-}
-
-/** Throws an H3 error whose message is translated for the request's locale. */
-export function throwLocalizedError(event: H3Event, statusCode: number, key: string): never {
-	throw createError({ statusCode, statusMessage: t(event, key) });
 }

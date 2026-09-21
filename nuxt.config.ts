@@ -1,3 +1,5 @@
+import { ACTIVITIES_CACHE } from "./shared/utils/cache";
+
 export default defineNuxtConfig({
 	modules: [
 		"@nuxt/eslint",
@@ -6,6 +8,7 @@ export default defineNuxtConfig({
 		"@vueuse/nuxt",
 		"@nuxtjs/turnstile",
 		"@nuxtjs/i18n",
+		"@vite-pwa/nuxt",
 	],
 
 	devtools: { enabled: false },
@@ -46,6 +49,60 @@ export default defineNuxtConfig({
 		// la lingua di default è sempre l'italiano: il browser non decide,
 		// decide l'utente con il selettore
 		detectBrowserLanguage: false,
+	},
+
+	pwa: {
+		registerType: "autoUpdate",
+
+		manifest: {
+			name: "Edison Cloud",
+			short_name: "Edison Cloud",
+			description: "Attività e ticket clienti di Edison PLUS",
+			lang: "it",
+			display: "standalone",
+			orientation: "portrait",
+			start_url: "/",
+			background_color: "#ffffff",
+			theme_color: "#0284c7",
+			icons: [
+				{ src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+				{ src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
+				{
+					src: "/pwa-maskable-512x512.png",
+					sizes: "512x512",
+					type: "image/png",
+					purpose: "maskable",
+				},
+			],
+		},
+
+		workbox: {
+			navigateFallback: "/",
+			globPatterns: ["**/*.{js,css,html,png,svg,ico,woff2}"],
+			runtimeCaching: [
+				{
+					// l'ultima lista resta leggibile anche senza rete
+					urlPattern: /\/api\/activities$/,
+					handler: "NetworkFirst",
+					options: {
+						cacheName: ACTIVITIES_CACHE,
+						networkTimeoutSeconds: 3,
+						cacheableResponse: { statuses: [200] },
+						expiration: { maxEntries: 1, maxAgeSeconds: 60 * 60 * 24 },
+					},
+				},
+			],
+		},
+
+		client: {
+			installPrompt: true,
+		},
+
+		devOptions: {
+			enabled: true,
+			suppressWarnings: true,
+			type: "module",
+		},
 	},
 
 	turnstile: {

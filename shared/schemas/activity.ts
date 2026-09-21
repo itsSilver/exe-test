@@ -37,5 +37,32 @@ export const activityInputSchema = z.object({
 	note: z.string().trim().min(1, "activity.validation.noteRequired"),
 });
 
+export interface ActivityGroup {
+	personCode: string;
+	personName: string;
+	activities: Activity[];
+}
+
+export const SORT_FIELDS = ["date", "priority", "status", "customer", "person"] as const;
+
+export type SortField = typeof SORT_FIELDS[number];
+
+/** Query string accepted by the list endpoint. */
+export const activityQuerySchema = z.object({
+	page: z.coerce.number().int().positive().default(1),
+	limit: z.coerce.number().int().positive().max(100).default(20),
+	status: z.enum(STATUSES).optional(),
+	priority: z.enum(PRIORITIES).optional(),
+	search: z.string().trim().max(60).optional(),
+	// "-" seleziona le righe senza persona, che sono la maggioranza
+	personCode: z.string().trim().max(6).optional(),
+	sort: z.enum(SORT_FIELDS).default("date"),
+	order: z.enum(["asc", "desc"]).default("desc"),
+});
+
+export type ActivityQuery = z.infer<typeof activityQuerySchema>;
+
+export const UNASSIGNED = "-";
+
 export type Activity = z.infer<typeof activitySchema>;
 export type ActivityInput = z.infer<typeof activityInputSchema>;

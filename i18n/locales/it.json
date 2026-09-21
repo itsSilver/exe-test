@@ -2,6 +2,44 @@
 	"app": {
 		"name": "Edison Cloud"
 	},
+	"activity": {
+		"title": "Attività / Ticket",
+		"empty": "Nessuna attività da mostrare",
+		"noNote": "Nessuna descrizione",
+		"unassigned": "Non assegnate",
+		"status": {
+			"A": "Aperto",
+			"S": "Sospeso",
+			"C": "Chiuso"
+		},
+		"priority": {
+			"A": "Alta",
+			"M": "Media",
+			"B": "Bassa"
+		},
+		"actions": {
+			"insert": "Inserisci",
+			"edit": "Modifica",
+			"view": "Visualizza"
+		},
+		"count": "{count} attività",
+		"emptyFiltered": "Nessuna attività con questi filtri",
+		"columns": {
+			"person": "Persona",
+			"date": "Data",
+			"customer": "Cliente",
+			"status": "Stato",
+			"note": "Descrizione",
+			"actions": "Azioni"
+		},
+		"filters": {
+			"allStatuses": "Tutti gli stati",
+			"allPeople": "Tutte le persone",
+			"reset": "Azzera",
+			"allPriorities": "Tutte le priorità",
+			"search": "Cerca persona, cliente o descrizione"
+		}
+	},
 	"auth": {
 		"title": "Accesso",
 		"subtitle": "Inserisci le tue credenziali per continuare",
@@ -22,18 +60,30 @@
 	},
 	"common": {
 		"language": "Lingua",
+		"loading": "Caricamento…",
 		"success": "Operazione completata"
 	},
 	"errors": {
-		"databaseUnavailable": "Database non raggiungibile",
-		"invalidCredentials": "Codice utente o password non validi",
+		"activityNotFound": "Attività non trovata",
 		"captchaFailed": "Verifica di sicurezza non superata",
+		"databaseUnavailable": "Database non raggiungibile",
+		"forbidden": "Non autorizzato",
+		"generic": "Si è verificato un errore, riprova",
+		"invalidCredentials": "Codice utente o password non validi",
 		"notFound": "Attività non trovata",
-		"unauthorized": "Sessione scaduta, effettua di nuovo l'accesso",
-		"generic": "Si è verificato un errore, riprova"
+		"unauthorized": "Sessione scaduta, effettua di nuovo l'accesso"
 	},
 	"health": {
 		"connected": "Database connesso",
 		"summary": "{tickets} attività, {clienti} clienti, {persone} persone"
+	},
+	"menu": {
+		"title": "Menù",
+		"open": "Apri il menù",
+		"activities": "Attività / Ticket clienti"
+	},
+	"offline": {
+		"title": "Sei offline",
+		"description": "Vengono mostrati gli ultimi dati scaricati. Le modifiche non sono disponibili."
 	}
 }

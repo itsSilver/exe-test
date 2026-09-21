@@ -17,6 +17,12 @@ export interface ApiPaginatedResponse<T> extends ApiResponse<T[]> {
 	meta: ApiMeta;
 }
 
+export interface ApiErrorResponse {
+	success: false;
+	message: string;
+	code: string;
+}
+
 export interface PaginationInput {
 	page: number;
 	limit: number;
