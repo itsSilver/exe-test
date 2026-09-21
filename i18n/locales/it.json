@@ -38,6 +38,18 @@
 			"reset": "Azzera",
 			"allPriorities": "Tutte le priorità",
 			"search": "Cerca persona, cliente o descrizione"
+		},
+		"created": "Attività inserita",
+		"updated": "Attività aggiornata",
+		"deleted": "Attività cancellata",
+		"validation": {
+			"customerRequired": "Il cliente è obbligatorio",
+			"personRequired": "La persona è obbligatoria",
+			"dateRequired": "La data è obbligatoria",
+			"hoursPositive": "Le ore devono essere maggiori di zero",
+			"statusRequired": "Lo stato è obbligatorio",
+			"priorityRequired": "La priorità è obbligatoria",
+			"noteRequired": "La nota è obbligatoria"
 		}
 	},
 	"auth": {
@@ -66,10 +78,12 @@
 	"errors": {
 		"activityNotFound": "Attività non trovata",
 		"captchaFailed": "Verifica di sicurezza non superata",
+		"customerNotFound": "Cliente non trovato",
 		"databaseUnavailable": "Database non raggiungibile",
 		"forbidden": "Non autorizzato",
 		"generic": "Si è verificato un errore, riprova",
 		"invalidCredentials": "Codice utente o password non validi",
+		"invalidId": "Identificativo non valido",
 		"notFound": "Attività non trovata",
 		"unauthorized": "Sessione scaduta, effettua di nuovo l'accesso"
 	},

@@ -38,6 +38,18 @@
 			"reset": "Clear",
 			"allPriorities": "All priorities",
 			"search": "Search person, customer or description"
+		},
+		"created": "Activity created",
+		"updated": "Activity updated",
+		"deleted": "Activity deleted",
+		"validation": {
+			"customerRequired": "The customer is required",
+			"personRequired": "The person is required",
+			"dateRequired": "The date is required",
+			"hoursPositive": "Hours must be greater than zero",
+			"statusRequired": "The status is required",
+			"priorityRequired": "The priority is required",
+			"noteRequired": "The note is required"
 		}
 	},
 	"auth": {
@@ -66,10 +78,12 @@
 	"errors": {
 		"activityNotFound": "Activity not found",
 		"captchaFailed": "Security check failed",
+		"customerNotFound": "Customer not found",
 		"databaseUnavailable": "Database unavailable",
 		"forbidden": "Not allowed",
 		"generic": "Something went wrong, please try again",
 		"invalidCredentials": "Invalid user code or password",
+		"invalidId": "Invalid identifier",
 		"notFound": "Activity not found",
 		"unauthorized": "Session expired, please sign in again"
 	},

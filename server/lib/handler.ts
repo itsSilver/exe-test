@@ -1,4 +1,4 @@
-import { type EventHandlerRequest, type H3Event, defineEventHandler, readBody, getQuery } from "h3";
+import { type EventHandlerRequest, type H3Event, defineEventHandler, getQuery, getRouterParam, readBody } from "h3";
 import type { ZodType } from "zod";
 import { badRequest } from "./errors";
 import { toErrorJson } from "./response";
@@ -31,6 +31,17 @@ export async function readValidatedBody<T>(event: H3Event, schema: ZodType<T>): 
 /** The same, for the query string. */
 export function readValidatedQuery<T>(event: H3Event, schema: ZodType<T>): T {
 	return parse(schema, getQuery(event));
+}
+
+/** Reads a numeric route parameter, reporting a bad one as a 400. */
+export function readValidatedParam(event: H3Event, name: string): number {
+	const id = Number(getRouterParam(event, name));
+
+	if (!Number.isInteger(id) || id <= 0) {
+		throw badRequest("errors.invalidId");
+	}
+
+	return id;
 }
 
 function parse<T>(schema: ZodType<T>, input: unknown): T {

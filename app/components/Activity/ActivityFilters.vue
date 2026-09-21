@@ -9,7 +9,7 @@ const filters = defineModel<{
 
 const search = defineModel<string>("search", { required: true });
 
-const props = defineProps<{ hasFilters: boolean }>();
+const props = defineProps<{ hasFilters: boolean; disabled: boolean }>();
 
 const emit = defineEmits<{
 	change: [key: "status" | "priority" | "personCode", value?: string];
@@ -71,6 +71,7 @@ const personItems = computed(() => [
 			value-key="value"
 			icon="i-lucide-circle-dot"
 			class="w-[calc(50%-0.25rem)] sm:w-40"
+			:disabled="props.disabled"
 			:placeholder="t('activity.filters.allStatuses')"
 			@update:model-value="emit('change', 'status', $event)"
 		/>
@@ -81,6 +82,7 @@ const personItems = computed(() => [
 			value-key="value"
 			icon="i-lucide-flag"
 			class="w-[calc(50%-0.25rem)] sm:w-40"
+			:disabled="props.disabled"
 			:placeholder="t('activity.filters.allPriorities')"
 			@update:model-value="emit('change', 'priority', $event)"
 		/>
@@ -91,6 +93,7 @@ const personItems = computed(() => [
 			value-key="value"
 			icon="i-lucide-user-round"
 			class="w-full sm:w-56"
+			:disabled="props.disabled"
 			:placeholder="t('activity.filters.allPeople')"
 			@update:model-value="emit('change', 'personCode', $event)"
 		/>
@@ -100,6 +103,7 @@ const personItems = computed(() => [
 			color="neutral"
 			variant="ghost"
 			icon="i-lucide-x"
+			:disabled="props.disabled"
 			:label="t('activity.filters.reset')"
 			@click="emit('reset')"
 		/>
