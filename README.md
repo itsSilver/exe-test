@@ -5,8 +5,11 @@ and management of customer activities/tickets. Single Nuxt application — Vue 3
 Nitro server routes as the Node back-end — reading and writing the supplied Firebird 2.5
 database.
 
+[![CI](https://github.com/itsSilver/exe-test/actions/workflows/ci.yml/badge.svg)](https://github.com/itsSilver/exe-test/actions/workflows/ci.yml)
+
 ---
 
+- [Screens](#screens)
 - [Stack](#stack)
 - [Requirements](#requirements)
 - [Setup](#setup)
@@ -17,6 +20,28 @@ database.
 - [Project Structure](#project-structure)
 - [Scripts](#scripts)
 - [Notes on the legacy schema](#notes-on-the-legacy-schema)
+
+## Screens
+
+| Screen | Route | What it does |
+| ------ | ----- | ------------ |
+| Login | `/login` | User code and password against `TBUTEN`, plus a Turnstile challenge |
+| Menu | — | Hamburger with *Attività / Ticket clienti* and *Logout* |
+| List | `/attivita` | The latest tickets, newest first, grouped by person |
+| Insert | `/attivita/nuovo` | A new activity, stored on confirm |
+| View | `/attivita/:id` | Read only; delete lives here, behind a confirmation |
+| Edit | `/attivita/:id/modifica` | The same fields in input, stored on confirm |
+
+The list shows a table on desktop and grouped cards on the phone. Beyond the specification it
+also offers a search across person, customer, code and description, filters by status, priority
+and person, sortable columns and pagination — the default view is still the latest tickets
+grouped by person, as specified.
+
+The three pickers behave as the specification describes: the customer opens a search that needs
+at least four characters and matches name, address and town; the person and work type open
+their lists, which arrive ten rows at a time as you scroll and can be filtered from the server.
+Duration accepts minutes or hours, and minutes are converted to decimal hours — 15 becomes
+`0,25` — before they reach `NORE`.
 
 ## Stack
 
@@ -99,9 +124,11 @@ meantime. Insert, edit and delete therefore require a connection.
 
 ## Testing
 
-[Vitest](https://vitest.dev/) covers the pure parts of the server: locale resolution and
-translation, the response envelopes, the mapping out of the legacy columns, and the login
-schema. Tests sit next to the code they cover as `*.test.ts`.
+[Vitest](https://vitest.dev/) covers the pure parts of the project: the RTF encoding of
+`MMEMO`, the minutes to hours conversion, the local-time date handling, locale resolution and
+translation, the response envelopes, the mapping out of the legacy columns, the grouping by
+person, the search patterns, and both Zod schemas. Tests sit next to the code they cover as
+`*.test.ts`.
 
 ```bash
 pnpm test         # single run
@@ -147,47 +174,43 @@ Tables used by this project:
 ## Project Structure
 
 ```text
-shared/
-  schemas/              # Zod contracts used by the API and the forms
-  types/                # ApiResponse / ApiPaginatedResponse envelopes
-i18n/
-  locales/              # it.json and en.json, read by the app and the server
+shared/                 # imported by both the app and the server
+  schemas/              # Zod contracts: activity, auth, lookup
+  types/api.ts          # ApiResponse / ApiPaginatedResponse / ApiErrorResponse
+  utils/                # format, group, hours, search, cache
+i18n/locales/           # it.json and en.json, read by the app and the server
 app/
-  components/           # Nuxt UI based components
-    Attivita/           # Ticket list, detail form, pickers
-  composables/
-    useLocaleSwitcher.ts  # Language selection, persisted in a cookie
-    useNotify.ts          # Success and error toasts for API calls
-    useZodValidator.ts    # Translates schema messages for UForm
-  layouts/
+  components/
+    Activity/           # Card, Filters, Form, Group, Header, Table, pickers
+    Layout/AppHeader    # Hamburger menu, language and colour mode
+  composables/          # useActivities, useActivity, useLookup, useNotify, …
+  layouts/              # default (header) and auth (centred card)
   middleware/
-    auth.global.ts      # Redirects to /login when there is no session
-  plugins/
-    locale.ts           # Restores the saved language on startup
+    auth.global.ts      # Sends anonymous visitors to /login
   pages/
-    login.vue
-    attivita/           # List, insert, edit, view
-  stores/
-    auth.ts             # Pinia session store
+    login/
+    attivita/           # index, nuovo, [id], [id]/modifica
+  plugins/locale.ts     # Restores the saved language on startup
+  stores/auth.ts        # Pinia session store
 server/
-  api/                  # Route handlers: read input, call a service, return an envelope
+  api/                  # Handlers: read input, call a service, return an envelope
+    activities/         # index.get, index.post, [id].get, [id].put, [id].delete
+    auth/               # login.post, logout.post, me.get
+    customers/ people/ work-types/
   services/             # Business rules; the only thing handlers talk to
   db/
     client.ts           # node-firebird connection pool
     repositories/       # SQL and row mapping; legacy columns stop here
   lib/
-    dates.ts            # Local-time formatting for DDATATTI
+    dates.ts            # Local-time handling for DDATATTI
     errors.ts           # ApiError and its factories
     handler.ts          # defineApiHandler and schema-validated input
-    hours.ts            # Minutes to decimal hours
     i18n.ts             # Locale resolution and translation for API responses
     response.ts         # toJson / toJsonPaginated / toErrorJson
-    rtf.ts              # MMEMO encode/decode
+    rtf.ts              # MMEMO encode and decode
     session.ts          # Sealed cookie session helpers
-  plugins/
-    firebird.ts         # Closes the connection pool on shutdown
-docker/
-  firebird/data/        # The .FDB file (git-ignored)
+  plugins/firebird.ts   # Closes the connection pool on shutdown
+docker/firebird/data/   # The .FDB file (git-ignored)
 ```
 
 Three layers, each with one job. **Repositories** hold the SQL and turn rows into domain
@@ -199,11 +222,15 @@ the input, call a service and return an envelope — no SQL, no try/catch:
 export default defineApiHandler(async (event) => {
 	await requireUser(event);
 
-	const { groups } = await listRecent();
+	const query = readValidatedQuery(event, activityQuerySchema);
+	const { activities, total } = await listActivities(query);
 
-	return toJson(event, groups);
+	return toJsonPaginated(event, activities, { ...query, total });
 });
 ```
+
+The same Zod schema validates both ends: the form calls `useZodValidator(activityInputSchema)`
+and the handler calls `readValidatedBody(event, activityInputSchema)`, so the two cannot drift.
 
 ## Authentication
 
@@ -232,6 +259,23 @@ Every endpoint returns the same envelope, built by `toJson` or `toJsonPaginated`
 
 List endpoints add a `meta` block with `page`, `limit`, `total`, `totalPages`, `hasPreviousPage`
 and `hasNextPage`.
+
+| Method | Endpoint | Purpose |
+| ------ | -------- | ------- |
+| `POST` | `/api/auth/login` | Credentials plus Turnstile, opens the session |
+| `POST` | `/api/auth/logout` | Clears the session |
+| `GET` | `/api/auth/me` | The logged-in user, for restoring a refreshed page |
+| `GET` | `/api/activities` | Paginated list; `search`, `status`, `priority`, `personCode`, `sort`, `order` |
+| `POST` | `/api/activities` | Creates an activity |
+| `GET` | `/api/activities/:id` | A single activity |
+| `PUT` | `/api/activities/:id` | Updates an activity |
+| `DELETE` | `/api/activities/:id` | Deletes an activity |
+| `GET` | `/api/customers` | Customer search, four characters minimum |
+| `GET` | `/api/people` | `TBPERS`, paginated and searchable |
+| `GET` | `/api/work-types` | `TBGENE` where `CTPGENE = '03'`, paginated and searchable |
+| `GET` | `/api/health` | Row counts, to check the database connection |
+
+Everything except `/api/health` and the login requires the session cookie.
 
 Failures answer in the same shape, so a client never has to branch on the response:
 
@@ -299,7 +343,13 @@ recording, since they change how the data has to be read and written:
   date throughout.
 - `DDATOPER`, `CORAOPER`, `CCODUTEN` and `CCODOPER` are the audit columns used by Edison PLUS.
   Inserts and updates populate them with the current date, time, logged-in user and operation
-  type, matching the existing rows.
+  type (`I` or `M`), matching the existing rows.
+- `TBATCL` has no foreign keys, so an unknown customer code would be stored without complaint.
+  The service checks the customer exists before writing.
+- `CPRIORIT` holds `A`, `M` or `B`, which sort alphabetically as A, B, M. Sorting by priority
+  maps them to their real order first, and the same is done for `CSTATO`.
+- A parameter compared against a column takes that column's length, so matching a `VARCHAR(6)`
+  code against `%000001%` fails with a truncation error. The search casts its pattern.
 - The database character set is `ISO8859_1`. The connection sets it explicitly, otherwise
   accented characters in customer names and addresses come back corrupted.
 - Dates arrive from the driver as local-time `Date` objects, so they are formatted with
