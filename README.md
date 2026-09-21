@@ -89,6 +89,9 @@ pnpm test:watch   # watch mode
 They need neither the database nor a running server, so the suite finishes in well under a
 second.
 
+GitHub Actions runs the same checks on every push and pull request to `main`, in order:
+linting, type checking, tests, then a production build.
+
 ## Database
 
 The container exposes Firebird 2.5 on port 3050 and mounts `docker/firebird/data` as the
