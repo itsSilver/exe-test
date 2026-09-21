@@ -1,0 +1,19 @@
+{
+	"app": {
+		"name": "Edison Cloud"
+	},
+	"common": {
+		"success": "Operazione completata"
+	},
+	"errors": {
+		"databaseUnavailable": "Database non raggiungibile",
+		"invalidCredentials": "Codice utente o password non validi",
+		"captchaFailed": "Verifica di sicurezza non superata",
+		"notFound": "Attività non trovata",
+		"unauthorized": "Sessione scaduta, effettua di nuovo l'accesso"
+	},
+	"health": {
+		"connected": "Database connesso",
+		"summary": "{tickets} attività, {clienti} clienti, {persone} persone"
+	}
+}

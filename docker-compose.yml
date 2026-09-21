@@ -1,0 +1,19 @@
+
+services:
+  # Firebird 2.5 - hosts the EDISONFDB_DATI.FDB database supplied with the test
+  firebird:
+    image: jacobalberty/firebird:2.5-ss
+    platform: linux/amd64
+    container_name: edison-cloud-firebird
+    restart: unless-stopped
+    environment:
+      ISC_PASSWORD: masterkey
+    ports:
+      - "3050:3050"
+    volumes:
+      - ./docker/firebird/data:/firebird/data
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'SELECT 1 FROM RDB$$DATABASE;' | /usr/local/firebird/bin/isql -u SYSDBA -p masterkey /firebird/data/EDISONFDB_DATI.FDB"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
