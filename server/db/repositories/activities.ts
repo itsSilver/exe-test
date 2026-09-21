@@ -1,8 +1,8 @@
 import type { Database } from "node-firebird";
-import { type Activity, type ActivityQuery, UNASSIGNED } from "#shared/schemas/activity";
+import { type Activity, type ActivityInput, type ActivityQuery, UNASSIGNED } from "#shared/schemas/activity";
 import { isSearchable, toLikePattern } from "#shared/utils/search";
-import { toIsoDate } from "../../lib/dates";
-import { fromRtf } from "../../lib/rtf";
+import { fromIsoDate, toIsoDate } from "../../lib/dates";
+import { fromRtf, toPlain, toRtf } from "../../lib/rtf";
 import { withDb } from "../client";
 
 type ActivityFilters = Pick<ActivityQuery, "status" | "priority" | "personCode" | "search">;
@@ -191,5 +191,89 @@ export function findById(id: number) {
 		`;
 
 		return rows[0] ? toActivity(rows[0]) : undefined;
+	});
+}
+
+/**
+ * INSERT/UPDATE/DELETE ... RETURNING resolves to a single object rather than
+ * an array of rows, so the id is read from either shape.
+ */
+function returnedId(result: unknown): number | undefined {
+	if (Array.isArray(result)) {
+		return (result[0] as { IDREC?: number } | undefined)?.IDREC;
+	}
+
+	return (result as { IDREC?: number } | undefined)?.IDREC;
+}
+
+/**
+ * The columns Edison PLUS maintains on every write: the date and time of the
+ * operation, who did it, and whether it was an insert or a change.
+ */
+function auditValues(userCode: string, operation: "I" | "M") {
+	const now = new Date();
+	const time = `${now.getHours()}`.padStart(2, "0") + ":" + `${now.getMinutes()}`.padStart(2, "0");
+
+	return { now, time, userCode, operation };
+}
+
+export function insertActivity(input: ActivityInput, userCode: string) {
+	const audit = auditValues(userCode, "I");
+
+	return withDb(async (db) => {
+		// IDREC è assegnato dal trigger TBATCL_BI, quindi non lo passiamo
+		const result = await db.sql`
+			INSERT INTO TBATCL (
+				CCODCLIE, DDATATTI, CCODPERS, NORE, CCODCAUS,
+				CSTATO, CPRIORIT, CPERRIFE, MMEMO, MMEMOPLAIN,
+				DDATOPER, CORAOPER, CCODUTEN, CCODOPER
+			) VALUES (
+				${input.customerCode}, ${fromIsoDate(input.date)}, ${input.personCode},
+				${input.hours}, ${input.workTypeCode}, ${input.status}, ${input.priority},
+				${input.referencePerson}, ${toRtf(input.note)}, ${toPlain(input.note)},
+				${audit.now}, ${audit.time}, ${audit.userCode}, ${audit.operation}
+			)
+			RETURNING IDREC
+		`;
+
+		return returnedId(result);
+	});
+}
+
+export function updateActivity(id: number, input: ActivityInput, userCode: string) {
+	const audit = auditValues(userCode, "M");
+
+	return withDb(async (db) => {
+		const result = await db.sql`
+			UPDATE TBATCL SET
+				CCODCLIE = ${input.customerCode},
+				DDATATTI = ${fromIsoDate(input.date)},
+				CCODPERS = ${input.personCode},
+				NORE = ${input.hours},
+				CCODCAUS = ${input.workTypeCode},
+				CSTATO = ${input.status},
+				CPRIORIT = ${input.priority},
+				CPERRIFE = ${input.referencePerson},
+				MMEMO = ${toRtf(input.note)},
+				MMEMOPLAIN = ${toPlain(input.note)},
+				DDATOPER = ${audit.now},
+				CORAOPER = ${audit.time},
+				CCODUTEN = ${audit.userCode},
+				CCODOPER = ${audit.operation}
+			WHERE IDREC = ${id}
+			RETURNING IDREC
+		`;
+
+		return returnedId(result);
+	});
+}
+
+export function deleteActivity(id: number) {
+	return withDb(async (db) => {
+		const result = await db.sql`
+			DELETE FROM TBATCL WHERE IDREC = ${id} RETURNING IDREC
+		`;
+
+		return returnedId(result);
 	});
 }

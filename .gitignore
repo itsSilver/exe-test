@@ -4,3 +4,6 @@ node_modules
 .data
 .env
 docker/firebird/data/
+
+# note di lavoro, non fanno parte del progetto
+TASKS.md

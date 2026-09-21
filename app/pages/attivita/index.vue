@@ -57,6 +57,7 @@ watch(activities, async (value) => {
 					v-model:search="search"
 					class="grow"
 					:has-filters="hasFilters"
+					:disabled="isLoading"
 					@change="setFilter"
 					@reset="reset"
 				/>
@@ -88,6 +89,7 @@ watch(activities, async (value) => {
 				class="mt-3"
 				color="neutral"
 				variant="subtle"
+				:disabled="isLoading"
 				:label="t('activity.filters.reset')"
 				@click="reset"
 			/>
@@ -133,6 +135,7 @@ watch(activities, async (value) => {
 				v-model:page="filters.page"
 				:total="meta.total"
 				:items-per-page="meta.limit"
+				:disabled="isLoading"
 			/>
 		</div>
 

@@ -75,6 +75,7 @@ function sortIcon(field?: SortField) {
 					variant="ghost"
 					size="xs"
 					:label="t(header.label)"
+					:disabled="loading"
 					:trailing-icon="sortIcon(header.field)"
 					:class="sort === header.field && 'text-primary'"
 					@click="emit('sort', header.field)"
