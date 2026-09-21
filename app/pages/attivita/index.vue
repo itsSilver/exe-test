@@ -37,7 +37,9 @@ watch(activities, async (value) => {
 						{{ t("activity.title") }}
 					</h1>
 					<p class="text-xs text-muted">
-						{{ t("activity.count", { count: total }) }}
+						{{ activities.length < total
+							? t("activity.countOf", { shown: activities.length, total })
+							: t("activity.count", { count: total }) }}
 					</p>
 				</div>
 

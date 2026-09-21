@@ -80,7 +80,8 @@
 			"customerPlaceholder": "Ragione sociale, indirizzo o città",
 			"customerHint": "Scrivi almeno {count} caratteri",
 			"more": "{shown} di {total}"
-		}
+		},
+		"countOf": "{shown} di {total} attività"
 	},
 	"auth": {
 		"title": "Accesso",
