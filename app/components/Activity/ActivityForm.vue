@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { Activity, ActivityInput } from "#shared/schemas/activity";
 import { activityInputSchema, PRIORITIES, STATUSES } from "#shared/schemas/activity";
+import { type ActivityMode, modeCapabilities } from "#shared/utils/activity-mode";
 
 const props = defineProps<{
-	mode: "view" | "edit" | "insert";
+	mode: ActivityMode;
 	activity?: Activity;
 	saving?: boolean;
 	deleting?: boolean;
@@ -17,7 +18,8 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { status, priority } = useStatusMeta();
 
-const isReadonly = computed(() => props.mode === "view");
+const capabilities = computed(() => modeCapabilities(props.mode));
+const isReadonly = computed(() => capabilities.value.readonly);
 const validate = useZodValidator(activityInputSchema);
 
 const state = reactive<ActivityInput>({
@@ -270,7 +272,7 @@ const priorityItems = computed(() => PRIORITIES.map(code => ({ label: priority(c
 
 		<div class="flex flex-wrap items-center gap-2 pt-2">
 			<UButton
-				v-if="!isReadonly"
+				v-if="capabilities.canSubmit"
 				type="submit"
 				icon="i-lucide-check"
 				:loading="saving"
@@ -287,7 +289,7 @@ const priorityItems = computed(() => PRIORITIES.map(code => ({ label: priority(c
 
 			<!-- la cancellazione è attiva solo in visualizzazione, come da specifica -->
 			<UButton
-				v-if="isReadonly"
+				v-if="capabilities.canDelete"
 				class="ms-auto"
 				color="error"
 				variant="subtle"
@@ -298,7 +300,7 @@ const priorityItems = computed(() => PRIORITIES.map(code => ({ label: priority(c
 			/>
 
 			<UButton
-				v-if="isReadonly"
+				v-if="capabilities.canEdit"
 				color="primary"
 				icon="i-lucide-pencil"
 				:label="t('activity.actions.edit')"

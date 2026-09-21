@@ -80,7 +80,8 @@
 			"customerPlaceholder": "Name, address or town",
 			"customerHint": "Type at least {count} characters",
 			"more": "{shown} of {total}"
-		}
+		},
+		"countOf": "{shown} of {total} activities"
 	},
 	"auth": {
 		"title": "Sign in",
